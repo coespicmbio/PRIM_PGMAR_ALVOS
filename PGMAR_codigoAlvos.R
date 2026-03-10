@@ -259,6 +259,9 @@ alvos_flora <- alvos_long |>
   unique() |>
   sort()
 alvos_flora
+
+alvos_flora[str_count(alvos_flora, "\\S+") > 2]
+
 # Ambientes Singulares
 alvos_ambientes <- alvos_long |>
   filter(Tipo == "Ambientes_Singulares") |>
@@ -308,6 +311,11 @@ correcoes <- tribble(
   ~Conteudo_antigo, ~Conteudo_novo,
   "Halichondria Halichondria_cebimarensis", "Halichondria cebimarensis",
   "Latrunculia Biannulata_janeirensis", "Latrunculia janeirensis",
+  "Mikania hastato cordata", "Mikania hastato-cordata",
+  "Acanthosyris paulo alvinii", "Acanthosyris paulo-alvinii",
+  "Cryptanthus burle marxii", "Cryptanthus burle-marxii",
+  "Erythroxylum petrae caballi", "Erythroxylum petrae-caballi"
+  
   )
 
 # Aplica as correções ao dataframe principal
@@ -315,8 +323,8 @@ correcoes <- tribble(
 alvos_long <- alvos_long %>%
   left_join(correcoes, by = c("Conteudo" = "Conteudo_antigo")) %>%
   mutate(Conteudo = coalesce(Conteudo_novo, Conteudo)) %>%
-  select(-Conteudo_novo) %>%
-  rename(UP = ID)
+  select(-Conteudo_novo) #%>%
+  #rename(UP = ID)
 
 # ============================================================
 # 8) Exportação do resultado final
