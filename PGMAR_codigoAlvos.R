@@ -314,8 +314,10 @@ correcoes <- tribble(
   "Mikania hastato cordata", "Mikania hastato-cordata",
   "Acanthosyris paulo alvinii", "Acanthosyris paulo-alvinii",
   "Cryptanthus burle marxii", "Cryptanthus burle-marxii",
-  "Erythroxylum petrae caballi", "Erythroxylum petrae-caballi"
-  
+  "Erythroxylum petrae caballi", "Erythroxylum petrae-caballi",
+  "Padraria de fanerógamas", "Pradaria de fanerógamas (seagrass)",
+  "Important Bird Areas", "Important Bird Areas (IBAS)",
+  "Buchenavia parvifolia subsp. Rabelloana", "Buchenavia parvifolia subsp. rabelloana"
   )
 
 # Aplica as correções ao dataframe principal
@@ -337,5 +339,5 @@ alvos_long <- alvos_long %>%
 # Cada linha representa um alvo individual associado
 # a uma Unidade de Planejamento e a um componente temático.
 
-write_csv(alvos_long, "PGMAR_saidaAlvosProcessado.csv")
+write_csv(alvos_long, "PGMAR_alvosProcessado.csv")
 
