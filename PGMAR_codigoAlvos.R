@@ -14,7 +14,7 @@
 #
 # Onde:
 #   UP        → Unidade de Planejamento
-#   Tipo      → componente (Fauna, Flora, Ambientes, Ambientes)
+#   Tipo      → componente (Fauna, Flora, Ambientes Singulares, Serviços Ecossistêmicos)
 #   Conteudo  → alvo individual
 #
 # O pipeline realiza:
@@ -124,8 +124,8 @@ resultado <- tibble(
 #
 # Fauna:
 # Flora:
-# Ambientes:
-# Ambientes singulares:
+# Ambientes Singulares:
+# Serviços Ecossistêmicos:
 #
 # Esta etapa padroniza os rótulos e extrai o conteúdo de cada um.
 
@@ -204,7 +204,7 @@ mutate(
 #
 # torna-se:
 #
-# ID | Tipo | Conteudo
+# ID | Ambiente | Tipo | Conteudo
 
 alvos_long <- resultado_blocos %>%
   select(ID, Ambiente, Fauna, Flora, Ambientes_Singulares, Servicos) %>%
@@ -240,8 +240,44 @@ alvos_long <- resultado_blocos %>%
   ) %>%
   filter(Conteudo != "")
 
+
 # ============================================================
-# 6) Checagens exploratórias
+# 6) Correções manuais conhecidas
+# ============================================================
+
+# Algumas inconsistências presentes no material original
+# exigem correções específicas.
+#
+# Estas correções incluem:
+#
+# • erros de digitação
+# • problemas de encoding
+# • nomes científicos quebrados
+# • rótulos institucionais incompletos
+
+correcoes <- tribble(
+  ~Conteudo_antigo, ~Conteudo_novo,
+  "Halichondria Halichondria cebimarensis", "Halichondria cebimarensis",
+  "Latrunculia Biannulata_janeirensis", "Latrunculia janeirensis",
+  "Mikania hastato cordata", "Mikania hastato-cordata",
+  "Acanthosyris paulo alvinii", "Acanthosyris paulo-alvinii",
+  "Cryptanthus burle marxii", "Cryptanthus burle-marxii",
+  "Erythroxylum petrae caballi", "Erythroxylum petrae-caballi",
+  "Padraria de fanerógamas", "Pradaria de fanerógamas (seagrass)",
+  "Important Bird Areas", "Important Bird Areas (IBAS)",
+  "Buchenavia parvifolia subsp. Rabelloana", "Buchenavia parvifolia subsp. rabelloana"
+  )
+
+# Aplica as correções ao dataframe principal
+
+alvos_long <- alvos_long %>%
+  left_join(correcoes, by = c("Conteudo" = "Conteudo_antigo")) %>%
+  mutate(Conteudo = coalesce(Conteudo_novo, Conteudo)) %>%
+  select(-Conteudo_novo) #%>%
+  #rename(UP = ID)
+
+# ============================================================
+# 7) Checagens exploratórias
 # ============================================================
 
 # Extração para checagem de alvos por Grupo
@@ -252,6 +288,7 @@ alvos_fauna <- alvos_long |>
   unique() |>
   sort()
 alvos_fauna
+
 # Flora
 alvos_flora <- alvos_long |>
   filter(Tipo == "Flora") |>
@@ -269,6 +306,7 @@ alvos_ambientes <- alvos_long |>
   unique() |>
   sort()
 alvos_ambientes
+
 # Ambientes
 alvos_servicos <- alvos_long |>
   filter(Tipo == "Servicos") |>
@@ -294,39 +332,6 @@ str(alvos_long)
 names(alvos_long)
 
 # ============================================================
-# 7) Correções manuais conhecidas
-# ============================================================
-
-# Algumas inconsistências presentes no material original
-# exigem correções específicas.
-#
-# Estas correções incluem:
-#
-# • erros de digitação
-# • problemas de encoding
-# • nomes científicos quebrados
-# • rótulos institucionais incompletos
-
-correcoes <- tribble(
-  ~Conteudo_antigo, ~Conteudo_novo,
-  "Halichondria Halichondria_cebimarensis", "Halichondria cebimarensis",
-  "Latrunculia Biannulata_janeirensis", "Latrunculia janeirensis",
-  "Mikania hastato cordata", "Mikania hastato-cordata",
-  "Acanthosyris paulo alvinii", "Acanthosyris paulo-alvinii",
-  "Cryptanthus burle marxii", "Cryptanthus burle-marxii",
-  "Erythroxylum petrae caballi", "Erythroxylum petrae-caballi"
-  
-  )
-
-# Aplica as correções ao dataframe principal
-
-alvos_long <- alvos_long %>%
-  left_join(correcoes, by = c("Conteudo" = "Conteudo_antigo")) %>%
-  mutate(Conteudo = coalesce(Conteudo_novo, Conteudo)) %>%
-  select(-Conteudo_novo) #%>%
-  #rename(UP = ID)
-
-# ============================================================
 # 8) Exportação do resultado final
 # ============================================================
 
@@ -337,5 +342,5 @@ alvos_long <- alvos_long %>%
 # Cada linha representa um alvo individual associado
 # a uma Unidade de Planejamento e a um componente temático.
 
-write_csv(alvos_long, "PGMAR_saidaAlvosProcessado.csv")
+write_csv(alvos_long, "PGMAR_alvosProcessado.csv")
 
